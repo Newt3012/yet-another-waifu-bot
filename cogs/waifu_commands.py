@@ -575,8 +575,24 @@ class WaifuCommands(Cog, name="Waifu Commands"):
         if waifu is None:
             await ctx.send(f"No waifu with id {list_id}")
             return
-        await waifu_manager.remove_waifu_from_player(str(author.id), list_id)
-        await ctx.send(f"Successfully removed {waifu.name} from your waifus.")
+        await ctx.send(f"Are you sure you want to remove {waifu.name} from your waifus? (yes or no)")
+
+        def check_removal_confirmation(msg):
+            return msg.content.lower() == "yes" or msg.content.lower() == "no"\
+                and msg.author.id == author.id\
+                and msg.channel.id == ctx.message.channel.id
+        
+        try:
+            msg = await self.bot.wait_for('message', check=check_removal_confirmation, timeout=30)
+        except asyncio.TimeoutError:
+            await ctx.send("Waited too long for confirmation, aborting.")
+            return
+        
+        if msg.content.lower() == "yes":
+            await waifu_manager.remove_waifu_from_player(str(author.id), list_id)
+            await ctx.send(f"Successfully removed {waifu.name} from your waifus.")
+        else:
+            await ctx.send("Cancelled removal.")
     
     @group(aliases=['t'])
     async def trade(self, ctx: Context):

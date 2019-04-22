@@ -5,6 +5,8 @@ from io import BytesIO
 import aiohttp
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from http_session import http_session
+from bot_config import bot_config
+import datetime
 
 
 class MiscCommands(Cog, name="Misc Commands"):
@@ -103,6 +105,21 @@ class MiscCommands(Cog, name="Misc Commands"):
         if member.id == self.newt_id:
             await ctx.send("Newt it's fine don't worry about them. "
                            f"Just pay attention to me more and ignore what {author.name} is trying to say.")
+    
+    def is_before(self, last_time, delta_h):
+        # if between 0 and 6 then same day else next day, set breakpoint, then simply check if now is before it
+        # only care for the hour and set day accordingly
+        now = datetime.datetime.now(tz=last_time.tzinfo)
+        return (last_time + datetime.timedelta(hours=delta_h)) <= now
+
+    @command()
+    async def test_time(self, ctx: Context):
+        last_time = bot_config.config.get('reset_time', None)
+        if last_time is None or self.is_before(last_time, 1):
+            bot_config.update_reset_time()
+            await ctx.send("Necessary time passed, updated to new time.")
+        else:
+            await ctx.send("Nope, not yet")
 
 
 def setup(bot: MyBot):
