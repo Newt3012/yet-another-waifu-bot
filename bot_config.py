@@ -7,7 +7,7 @@ class BotConfig:
         self.conn = None
         self.cur = None
         self.config = {}
-        self.config_props = ['spawn_channel', 'spawn_rate']
+        self.config_props = ['spawn_channel', 'spawn_rate', 'reset_time', 'row_number']
 
     def connect(self, conn):
         self.conn = conn
